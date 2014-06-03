@@ -1,6 +1,8 @@
 import unicodedata
+
 import bs4
 import chardet
+
 from .cp1252 import is_cp1252, unicode_to_cp1252
 
 
@@ -26,11 +28,15 @@ def un_escape_unicode(text):
 
 
 def byte_string(text, encoding='utf-8'):
-    return text if isinstance(text, str) else encoded(text, encoding)
+    return encoded(text, encoding) if isinstance(text, unicode) else _to_str(text)
+
+
+def _to_str(value):
+    return value if isinstance(value, str) else str(value)
 
 
 def to_unicode(text, encoding='utf-8'):
-    return decoded(text, encoding) if not isinstance(text, unicode) else text
+    return decoded(_to_str(text), encoding) if not isinstance(text, unicode) else text
 
 
 def to_normalized_unicode(text, form='NFC'):
