@@ -3,15 +3,15 @@ import unicodedata
 import bs4
 import chardet
 
-from .cp1252 import is_cp1252, unicode_to_cp1252
+from . import cp1252
 
 
 def encoded(text, encoding='utf-8', ignore_errors=False):
-    return text and text.encode(encoding) if not ignore_errors else text.encode(encoding, 'ignore')
+    return text and (text.encode(encoding) if not ignore_errors else text.encode(encoding, 'ignore'))
 
 
 def decoded(text, encoding='utf-8', ignore_errors=False):
-    return text and text.decode(encoding) if not ignore_errors else text.decode(encoding, 'ignore')
+    return text and (text.decode(encoding) if not ignore_errors else text.decode(encoding, 'ignore'))
 
 
 def normalize_unicode(unicode_text, form='NFC'):
@@ -23,7 +23,7 @@ def escape_unicode(text):
     return unicode(encoded(text, encoding='unicode-escape'))
 
 
-def un_escape_unicode(text):
+def unescape_unicode(text):
     return decoded(text, encoding='unicode-escape')
 
 
@@ -50,30 +50,51 @@ def force_unicode(text, encoding='utf-8'):
         return _force_detect_unicode(text)
 
 
+def guess_encoding(text):
+    assert isinstance(text, str)
+    soup = bs4.UnicodeDammit(text, smart_quotes_to=None)
+    if soup.original_encoding:
+        encoding = soup.original_encoding.lower()
+    else:
+        encoding = _chardet_encoding(text)
+
+    if cp1252.is_iso8859(encoding) and cp1252.has_gremlins(soup.unicode_markup):
+        encoding = 'windows-1252'
+
+    return encoding
+
+
 def _force_detect_unicode(text):
     #Uses the "unicode damn it" which forces unicode no matter less
     soup = bs4.UnicodeDammit(text, smart_quotes_to=None)
 
-    if is_cp1252(soup.original_encoding):
-        return unicode_to_cp1252(soup.unicode_markup)
+    if cp1252.is_iso8859(soup.original_encoding) and cp1252.has_gremlins(soup.unicode_markup):
+        soup = bs4.UnicodeDammit(text, override_encodings=['windows-1252'])
+
+    soup_unicode = soup.unicode_markup
+    if soup_unicode:
+        return soup_unicode
     else:
-        soup_unicode = soup.unicode_markup
-        if soup_unicode:
-            return soup_unicode
-        else:
-            #apparently this is silently performed by beautiful soup once chardet is installed
-            return _chardet_detect(text)
+        #apparently this is silently performed by beautiful if the chardet module is installed
+        return _chardet_convert(text)
 
 
-def _chardet_detect(text):
-    char_detection = chardet.detect(text)
-    encoding = char_detection['encoding']
+def _chardet_convert(text):
+    encoding = _chardet_encoding(text)
     if not encoding:
         raise CanNotConvertToUnicode(text)
-    elif is_cp1252(encoding):
-        return unicode_to_cp1252(encoding)
-    else:
-        return decoded(text, encoding, ignore_errors=True)
+
+    text_decoded = decoded(text, encoding, ignore_errors=True)
+    if cp1252.is_iso8859(encoding) and cp1252.has_gremlins(text_decoded):
+        text_decoded = cp1252.replace_gremlins(text_decoded)
+
+    return text_decoded
+
+
+def _chardet_encoding(text):
+    char_detection = chardet.detect(text)
+    encoding = char_detection['encoding']
+    return encoding and encoding.lower()
 
 
 class EncodingError(Exception):
