@@ -33,6 +33,8 @@ def replace_gremlins(text):
     return text
 
 
+#http://effbot.org/zone/unicode-gremlins.htmg
+#http://johnglotzer.blogspot.co.uk/2013/08/dealing-with-smart-quotes-and-other.html
 conversions = {
     # from http://www.microsoft.com/typography/unicode/1252.htm
     u"\x80": u"\u20AC", # EURO SIGN
