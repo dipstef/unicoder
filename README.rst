@@ -29,12 +29,8 @@ and decoding using ``beautiful soup`` unicode dammit.
 
     from unicoder import guess_encoding, force_unicode
 
+    #beer mug sign
     >>> unicode_beer = u"\U0001F37A"
-
-🍺
-
-.. code-block:: python
-
     >>> utf16_beer = encoded(unicode_beer, encoding='utf-16')
 
     >>> decoded(utf16_beer)
@@ -46,7 +42,7 @@ and decoding using ``beautiful soup`` unicode dammit.
 
 
 It happens in web pages to have text not encoded with the declared encoding.
-
+&#127866; &#x1f37a;
 An example is an html document containing text cp1252 gremlins which are added by some Windows applications to documents
 marked up as ISO 8859-1(Latin 1) or other encodings or through cut-paste operations:
 
@@ -97,3 +93,20 @@ Thus it gets correctly converted to unicode
 
     >>> force_unicode(value)
     u'foo “bar bar ” weasel'
+
+
+Normalization
+=============
+
+Different ways to represent same letter
+
+.. code-block:: python
+
+    hakan1 = u'HA\u030akan HA\u030akansson'
+    u'HÅkan HÅkansson'
+    hakan2 = u'H\xc5kan H\xc5kansson'
+    u'HÅkan HÅkansson'
+
+    assert not hakan1 == hakan2
+    #NFC by default
+    assert normalize_unicode(hakan1) == hakan2

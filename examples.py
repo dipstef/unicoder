@@ -1,6 +1,7 @@
 # coding=utf-8
 import bs4
-from unicoder import force_unicode, _chardet_convert, encoded, decoded, escape_unicode, unescape_unicode, guess_encoding
+from unicoder import force_unicode, _chardet_convert, encoded, decoded, escape_unicode, unescape_unicode, guess_encoding, \
+    normalize_unicode
 from unicoder.cp1252 import replace_gremlins, has_gremlins, gremlins
 
 hakan = u'Håkan Håkansson'
@@ -50,3 +51,13 @@ if has_gremlins(soupped.unicode_markup):
 
 print 'forced:', force_unicode(value)
 print 'forced escaped: ', escape_unicode(force_unicode(value))
+
+
+hakan1 = u'HA\u030akan HA\u030akansson'
+print hakan1
+hakan2 = u'H\xc5kan H\xc5kansson'
+print hakan2
+#assert encoded(hakan1) == encoded(hakan2)
+
+assert not hakan1 == hakan2
+assert normalize_unicode(hakan1) == hakan2
