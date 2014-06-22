@@ -24,15 +24,23 @@ Everything by default is ``utf-8``
 
 
 Handling encoding errors and force detecting.
-It happens in web pages to have text not encoded with the declared encoding.
 
+.. code-block:: python
+
+    from unicoder import guess_encoding, force_unicode
+
+    >>> unicode_beer = u"\U0001F37A"
+    🍺
+    >>> utf16_beer = encoded(unicode_beer, encoding='utf-16')
+
+
+It happens in web pages to have text not encoded with the declared encoding.
 An example are cp1252 gremlins that are added by some Windows applications ato documents marked up as ISO 8859-1
 (Latin 1) or other encodings. These characters are not valid ISO-8859-1 characters, and may cause all sorts of problems
 in processing and display applications.
 
 .. code-block:: python
 
-    from unicoder import guess_encoding, force_unicode
 
     >>> value = 'foo \x93bar bar \x94 weasel'
     UnicodeDecodeError("'utf8' codec can't decode byte 0x93 in position 4: invalid start byte")
@@ -48,6 +56,8 @@ Text decoded in ``iso-8859-2`` is not correct
     u'foo bar weasel'
 
 Should rather be:
+
+.. code-block:: python
 
     >>> decoded(value, 'windows-1252')
     u'foo “bar bar ” weasel'

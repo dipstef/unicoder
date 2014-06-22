@@ -43,13 +43,6 @@ def to_normalized_unicode(text, form='NFC'):
     return normalize_unicode(to_unicode(text), form)
 
 
-def force_unicode(text, encoding='utf-8'):
-    try:
-        return to_unicode(text, encoding)
-    except UnicodeDecodeError:
-        return _force_detect_unicode(text)
-
-
 def guess_encoding(text):
     assert isinstance(text, str)
     soup = bs4.UnicodeDammit(text, smart_quotes_to=None)
@@ -64,7 +57,14 @@ def guess_encoding(text):
     return encoding
 
 
-def _force_detect_unicode(text):
+def force_unicode(text, encoding='utf-8'):
+    try:
+        return to_unicode(text, encoding)
+    except UnicodeDecodeError:
+        return _detect_and_decode(text)
+
+
+def _detect_and_decode(text):
     #Uses the "unicode damn it" which forces unicode no matter less
     soup = bs4.UnicodeDammit(text, smart_quotes_to=None)
 

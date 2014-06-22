@@ -10,6 +10,14 @@ print hakan_utf8
 print escape_unicode(hakan)
 assert unescape_unicode(escape_unicode(hakan)) == hakan
 
+unicode_beer = u"\U0001F37A"
+print encoded(unicode_beer)
+utf16_beer = encoded(unicode_beer, encoding='utf-16')
+print utf16_beer
+print guess_encoding(utf16_beer)
+assert unicode_beer == force_unicode(utf16_beer)
+
+
 #hakan_latin = decoded(hakan, 'latin1')
 #print guess_encoding(hakan_utf8)
 
