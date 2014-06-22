@@ -5,7 +5,7 @@ Handles unicode conversion and normalization and encoding detection.
 
 Conversion
 ==========
-Everything by default is ``utf-8``
+``utf-8`` by default
 
 .. code-block:: python
 
