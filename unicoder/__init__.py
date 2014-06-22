@@ -45,13 +45,10 @@ def to_normalized_unicode(text, form='NFC'):
 
 def guess_encoding(text):
     assert isinstance(text, str)
-    soup = bs4.UnicodeDammit(text, smart_quotes_to=None)
-    if soup.original_encoding:
-        encoding = soup.original_encoding.lower()
-    else:
-        encoding = _chardet_encoding(text)
 
-    if cp1252.is_iso8859(encoding) and cp1252.has_gremlins(soup.unicode_markup):
+    encoding = _chardet_encoding(text)
+
+    if cp1252.is_smart_quote_encoding(encoding) and cp1252.has_gremlins(decoded(text, encoding)):
         encoding = 'windows-1252'
 
     return encoding
@@ -61,22 +58,12 @@ def force_unicode(text, encoding='utf-8'):
     try:
         return to_unicode(text, encoding)
     except UnicodeDecodeError:
-        return _detect_and_decode(text)
+        return _unicode_dammit(text, guess_encoding(text))
 
 
-def _detect_and_decode(text):
-    #Uses the "unicode damn it" which forces unicode no matter less
-    soup = bs4.UnicodeDammit(text, smart_quotes_to=None)
-
-    if cp1252.is_iso8859(soup.original_encoding) and cp1252.has_gremlins(soup.unicode_markup):
-        soup = bs4.UnicodeDammit(text, override_encodings=['windows-1252'])
-
-    soup_unicode = soup.unicode_markup
-    if soup_unicode:
-        return soup_unicode
-    else:
-        #apparently this is silently performed by beautiful if the chardet module is installed
-        return _chardet_convert(text)
+def _unicode_dammit(text, encoding):
+    soup = bs4.UnicodeDammit(text, override_encodings=[encoding])
+    return soup.unicode_markup
 
 
 def _chardet_convert(text):
@@ -85,7 +72,7 @@ def _chardet_convert(text):
         raise CanNotConvertToUnicode(text)
 
     text_decoded = decoded(text, encoding, ignore_errors=True)
-    if cp1252.is_iso8859(encoding) and cp1252.has_gremlins(text_decoded):
+    if cp1252.is_smart_quote_encoding(encoding) and cp1252.has_gremlins(text_decoded):
         text_decoded = cp1252.replace_gremlins(text_decoded)
 
     return text_decoded

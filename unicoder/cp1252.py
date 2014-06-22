@@ -3,7 +3,7 @@ import re
 iso8859 = ['windows-1252', 'iso-8859-1', 'iso-8859-2']
 
 
-def is_iso8859(encoding):
+def is_smart_quote_encoding(encoding):
     return encoding.lower() in iso8859
 
 

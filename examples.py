@@ -1,7 +1,7 @@
 # coding=utf-8
 import bs4
 from unicoder import force_unicode, _chardet_convert, encoded, decoded, escape_unicode, unescape_unicode, guess_encoding
-from unicoder.cp1252 import replace_gremlins, has_gremlins
+from unicoder.cp1252 import replace_gremlins, has_gremlins, gremlins
 
 hakan = u'Håkan Håkansson'
 hakan_utf8 = encoded(hakan)
@@ -11,11 +11,12 @@ print escape_unicode(hakan)
 assert unescape_unicode(escape_unicode(hakan)) == hakan
 
 unicode_beer = u"\U0001F37A"
-print encoded(unicode_beer)
+#print encoded(unicode_beer)
 utf16_beer = encoded(unicode_beer, encoding='utf-16')
-print utf16_beer
+#decoded(utf16_beer)
+#print utf16_beer
 print guess_encoding(utf16_beer)
-assert unicode_beer == force_unicode(utf16_beer)
+assert force_unicode(utf16_beer) == unicode_beer
 
 
 #hakan_latin = decoded(hakan, 'latin1')
@@ -29,8 +30,10 @@ print guess_encoding(value)
 print value
 
 print
-print 'windows-1252: ', value.decode("windows-1252")
-print 'iso-8859-2: ', value.decode('iso-8859-2')
+print 'windows-1252: ', decoded(value, "windows-1252")
+print 'iso-8859-2: ', decoded(value, 'iso-8859-2')
+
+print gremlins(decoded(value, 'iso-8859-2'))
 
 print 'chardet: ', _chardet_convert(value)
 

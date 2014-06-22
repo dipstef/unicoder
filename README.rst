@@ -1,8 +1,7 @@
 Unicoder
 ========
 
-Handles unicode conversion and normalization.
-On decoding errors relies to beautiful soup, ``chardet`` to guess the encoding
+Handles unicode conversion and normalization and encoding detection.
 
 Conversion
 ==========
@@ -23,21 +22,38 @@ Everything by default is ``utf-8``
     assert unescape_unicode(escape_unicode(hakan)) == hakan
 
 
-Handling encoding errors and force detecting.
+Handling encoding errors and force detecting using ``chardet`` (The Universal Character Encoding Detector)
+and decoding using ``beautiful soup`` unicode dammit.
 
 .. code-block:: python
 
     from unicoder import guess_encoding, force_unicode
 
     >>> unicode_beer = u"\U0001F37A"
-    🍺
+
+🍺
+
+.. code-block:: python
+
     >>> utf16_beer = encoded(unicode_beer, encoding='utf-16')
+
+    >>> decoded(utf16_beer)
+    UnicodeDecodeError("'utf8' codec can't decode byte 0xff in position 0: invalid start byte")
+
+    >>> guess_encoding(utf16_beer)
+    'utf-16le'
+    assert force_unicode(utf16_beer) == unicode_beer
 
 
 It happens in web pages to have text not encoded with the declared encoding.
-An example are cp1252 gremlins that are added by some Windows applications ato documents marked up as ISO 8859-1
-(Latin 1) or other encodings. These characters are not valid ISO-8859-1 characters, and may cause all sorts of problems
-in processing and display applications.
+
+An example is an html document containing text cp1252 gremlins which are added by some Windows applications to documents
+marked up as ISO 8859-1(Latin 1) or other encodings or through cut-paste operations:
+
+http://johnglotzer.blogspot.co.uk/2013/08/dealing-with-smart-quotes-and-other.html.
+
+These characters are not valid ISO-8859-1 characters, and may cause all sorts of problems in processing
+and display applications.
 
 .. code-block:: python
 
@@ -60,4 +76,24 @@ Should rather be:
 .. code-block:: python
 
     >>> decoded(value, 'windows-1252')
+    u'foo “bar bar ” weasel'
+
+Chardet or beautiful soup will detect the encoding as 'iso-8859-2', however we can figure out that text contains gremlins
+
+
+.. code-block:: python
+
+    from unicoded.cp1252 import gremlins
+
+    >>> gremlins(decoded(value, 'iso-8859-2'))
+    frozenset([u'\x93', u'\x94'])
+
+    >>> guess_encoding(value)
+    'windows-1252'
+
+Thus it gets correctly converted to unicode
+
+.. code-block:: python
+
+    >>> force_unicode(value)
     u'foo “bar bar ” weasel'
