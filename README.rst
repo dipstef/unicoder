@@ -29,7 +29,7 @@ and decoding using ``beautiful soup`` unicode dammit.
 
     from unicoder import guess_encoding, force_unicode
 
-    #beer mug sign
+    #beermug sign
     >>> unicode_beer = u"\U0001F37A"
     >>> utf16_beer = encoded(unicode_beer, encoding='utf-16')
 
@@ -42,7 +42,6 @@ and decoding using ``beautiful soup`` unicode dammit.
 
 
 It happens in web pages to have text not encoded with the declared encoding.
-&#127866; &#x1f37a;
 An example is an html document containing text cp1252 gremlins which are added by some Windows applications to documents
 marked up as ISO 8859-1(Latin 1) or other encodings or through cut-paste operations:
 
