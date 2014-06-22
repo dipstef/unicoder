@@ -1,21 +1,45 @@
-from distutils.core import setup
+#!/usr/bin/env python
 
-VERSION = '0.1'
+import os
+import sys
 
-desc = """Handle unicode conversion and normalization.
-On decoding errors uses auxiliary library (beautiful soup, chardet) to guess the encoding"""
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
 
-name = 'unicoder'
+settings = dict()
 
-setup(name=name,
-      version=VERSION,
-      author='Stefano Dipierro',
-      author_email='dipstef@github.com',
-      url='http://github.com/dipstef/{}/'.format(name),
-      description='Misc date utilities functions',
-      license='http://www.apache.org/licenses/LICENSE-2.0',
-      packages=[name],
-      platforms=['Any'],
-      long_description=desc,
-      requires=['BeautifulSoup4', 'chardet']
+# Publish Helper.
+if sys.argv[-1] == 'publish':
+    os.system('python setup.py sdist upload')
+    sys.exit()
+
+CLASSIFIERS = [
+    'Intended Audience :: Developers',
+    'Natural Language :: English',
+    'License :: OSI Approved :: Apache Software License',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 2.6',
+    'Programming Language :: Python :: 2.7',
+    'Programming Language :: Python :: 3.2',
+    'Topic :: Internet',
+    'Topic :: Utilities',
+]
+
+settings.update(
+    name='unicoder',
+    version='0.1',
+    description='unicode conversion and normalization, encoding detection',
+    long_description=open('README.rst').read(),
+    author='Stefano Dipierro',
+    license='Apache 2.0',
+    url='https://github.com/dipstef/unicoder',
+    classifiers=CLASSIFIERS,
+    keywords='unicode encoding conversion normalization charset',
+    packages=['unicoder'],
+    test_suite='tests',
+    requires=['BeautifulSoup4', 'chardet']
 )
+
+setup(**settings)
