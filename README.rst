@@ -66,14 +66,18 @@ Text decoded in ``iso-8859-2`` is not correct
     >>> decoded(value, 'iso-8859-2')
     u'foo bar weasel'
 
-Should rather be:
+ There's this "invalid" range in Latin-1 from x7f to x9f that's considered illegal. However, Microsoft saw that unused
+ range and decided to put "curly quotes" in there. In doing so they created this similar encoding called "windows-1252",
+ which is like Latin-1 with stuff in that invalid range.
+
+Encoding to ``windows-1252``:
 
 .. code-block:: python
 
     >>> decoded(value, 'windows-1252')
     u'foo “bar bar ” weasel'
 
-Chardet or beautiful soup will detect the encoding as 'iso-8859-2', however we can figure out that text contains gremlins
+Chardet or beautiful soup will detect the encoding as 'iso-8859-2', however we can figure out if the text contains gremlins
 
 
 .. code-block:: python
