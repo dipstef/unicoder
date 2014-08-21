@@ -101,4 +101,4 @@ class EncodingError(Exception):
 
 class CanNotConvertToUnicode(EncodingError):
     def __init__(self, text):
-        super(CanNotConvertToUnicode, self).__init__(text, 'Can Not Convert To Unicode: ', text)
+        super(CanNotConvertToUnicode, self).__init__(text)
