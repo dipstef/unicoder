@@ -46,36 +46,45 @@ def to_normalized_unicode(text, form='NFC'):
 def guess_encoding(text):
     assert isinstance(text, str)
 
-    encoding = _chardet_encoding(text)
+    encoding = _bs_encoding(text)
+    if not encoding:
+        encoding = _chardet_encoding(text)
 
+    if encoding:
+        encoding = _guess_cp1252(text, encoding)
+    return encoding
+
+
+def _guess_cp1252(text, encoding):
     if cp1252.is_smart_quote_encoding(encoding) and cp1252.has_gremlins(decoded(text, encoding)):
         encoding = 'windows-1252'
-
     return encoding
+
+
+def _bs_encoding(text):
+    soup = bs4.UnicodeDammit(text)
+    return soup.original_encoding
 
 
 def force_unicode(text, encoding='utf-8'):
     try:
         return to_unicode(text, encoding)
     except UnicodeDecodeError:
-        return _unicode_dammit(text, guess_encoding(text))
+        return _unicode_dammit(text)
 
 
-def _unicode_dammit(text, encoding):
-    soup = bs4.UnicodeDammit(text, override_encodings=[encoding])
-    return soup.unicode_markup
-
-
-def _chardet_convert(text):
-    encoding = _chardet_encoding(text)
+def _unicode_dammit(text):
+    soup = bs4.UnicodeDammit(text)
+    encoding = soup.original_encoding
+    if not encoding:
+        encoding = _chardet_encoding(text)
     if not encoding:
         raise CanNotConvertToUnicode(text)
 
-    text_decoded = decoded(text, encoding, ignore_errors=True)
-    if cp1252.is_smart_quote_encoding(encoding) and cp1252.has_gremlins(text_decoded):
-        text_decoded = cp1252.replace_gremlins(text_decoded)
-
-    return text_decoded
+    encoding = _guess_cp1252(text, encoding)
+    if encoding != soup.original_encoding:
+        soup = bs4.UnicodeDammit(text, override_encodings=[encoding])
+    return soup.unicode_markup
 
 
 def _chardet_encoding(text):

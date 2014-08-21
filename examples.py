@@ -1,6 +1,6 @@
 # coding=utf-8
 import bs4
-from unicoder import force_unicode, _chardet_convert, encoded, decoded, escape_unicode, unescape_unicode, guess_encoding, \
+from unicoder import force_unicode, encoded, decoded, escape_unicode, unescape_unicode, guess_encoding, \
     normalize_unicode
 from unicoder.cp1252 import replace_gremlins, has_gremlins, gremlins
 
@@ -36,7 +36,7 @@ print 'iso-8859-2: ', decoded(value, 'iso-8859-2')
 
 print gremlins(decoded(value, 'iso-8859-2'))
 
-print 'chardet: ', _chardet_convert(value)
+print 'force: ', force_unicode(value)
 
 soupped = bs4.UnicodeDammit(value)
 print soupped.original_encoding.lower()
